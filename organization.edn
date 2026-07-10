@@ -1,3 +1,13 @@
 ;; Real-world organization location / contact.
 ;; :head-role is institutional title only — no personal names.
-{:contact-page "https://www.digital.go.jp/", :ooyake-id "gov.jpn.digital", :sourced-from "com-etzhayyim-ooyake gov-units (verbatim where present)", :head-role-note "institutional office title only; personal names of current office-holders are intentionally NOT stored", :official-url "https://www.digital.go.jp/", :head-role "デジタル大臣", :hq {:last-verified "2026-06-02", :line-en "1-3 Kioicho, Chiyoda-ku, Tokyo (Tokyo Garden Terrace Kioicho)", :line-local "東京都千代田区紀尾井町1-3 東京ガーデンテラス紀尾井町", :postal-code "102-0094", :kind "headquarters", :provenance "https://www.digital.go.jp/", :hours "平日 9:30-18:15", :sourcing "representative", :country "jpn"}, :wikidata "Q107291492", :name-en "Digital Agency", :name-local "デジタル庁"}
+{:ooyake-id "gov.jpn.digital"
+  :official-url "https://www.digital.go.jp/"
+  :name-en "Digital Agency"
+  :name-local "デジタル庁"
+  :wikidata "Q107291492"
+  :head-role "デジタル大臣"
+  :head-role-note "institutional office title only; personal names of current office-holders are intentionally NOT stored"
+  :contact-page "https://www.digital.go.jp/"
+  :sourced-from "com-etzhayyim-ooyake gov-units (verbatim where present)"
+  :hq {:postal-code "102-0094" :line-local "東京都千代田区紀尾井町1-3 東京ガーデンテラス紀尾井町" :line-en "1-3 Kioicho, Chiyoda-ku, Tokyo (Tokyo Garden Terrace Kioicho)" :country "jpn" :hours "平日 9:30-18:15" :kind "headquarters" :provenance "https://www.digital.go.jp/" :last-verified "2026-06-02" :sourcing "representative"}
+}
