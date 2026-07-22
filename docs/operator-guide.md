@@ -1,5 +1,12 @@
 # Operator Guide
 
+Implementation: `src/digitalprocurement/` (see README.md's
+Implementation section for the module map). "the advisor" below is
+`digitalprocurement.digitalprocurementllm`; "the Digital Procurement
+Compliance Governor" is `digitalprocurement.governor`; gBizID and
+Gov-Cloud/ISMAP are separate `:track`s (`:gbizid` / `:govcloud`) on the
+same client engagement, assessed and filed independently.
+
 ## First Deployment
 
 1. Confirm the client already uses (or has completed the equivalent of)
