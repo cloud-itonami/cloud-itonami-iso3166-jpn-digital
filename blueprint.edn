@@ -3,6 +3,7 @@
  :itonami.blueprint/iso3166 "JPN-DIGITAL"
  :itonami.blueprint/iso3166-parent "JPN"
  :itonami.blueprint/ooyake-id "gov.jpn.digital"
+ :itonami.blueprint/organization {:ooyake-id "gov.jpn.digital" :official-url "https://www.digital.go.jp/" :head-role "デジタル大臣" :hq-line-local "東京都千代田区紀尾井町1-3 東京ガーデンテラス紀尾井町" :contact-page "https://www.digital.go.jp/"}
  :itonami.blueprint/domain :public-sector/digital-agency-procurement-compliance
  :itonami.blueprint/license "AGPL-3.0-or-later"
  :itonami.blueprint/social-impact [:govtech-market-access :digital-standard-compliance :public-spend-transparency]
