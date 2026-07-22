@@ -1,5 +1,14 @@
 # Business Model: Independent Digital-Agency-Regulated GovTech Procurement Compliance Service — Japan (Digital Agency)
 
+Implementation: `src/digitalprocurement/` — see README.md's
+Implementation section. The Trust Controls below are enforced in code
+by `digitalprocurement.governor` (spec-basis/no-fabrication HARD check,
+gBizID-Prime-verification HARD check, ISMAP-prerequisite-unverified
+HARD check, engagement-fee-mismatch check, confidence-floor/actuation
+gate, double-draft/double-submit guards) and
+`digitalprocurement.phase` (`:filing/submit` absent from every phase's
+`:auto` set).
+
 ## Classification
 
 - Repository: `cloud-itonami-iso3166-jpn-digital`

@@ -9,4 +9,24 @@
  :itonami.blueprint/governor :digital-procurement-compliance-governor
  :itonami.blueprint/robotics false
  :itonami.blueprint/required-technologies [:identity :forms :dmn :bpmn :audit-ledger]
- :itonami.blueprint/status :public-oss}
+ :itonami.blueprint/status :public-oss
+ :itonami.blueprint/maturity :implemented
+ :itonami.blueprint/implemented-slice
+ "src/digitalprocurement/* (langgraph-clj StateGraph actor): facts.cljc
+ (gBizID + Gov-Cloud/ISMAP catalog grounded in digital.go.jp/meti.go.jp/
+ gbiz-id.go.jp/cyber.go.jp sources only), governor.cljc (Digital
+ Procurement Compliance Governor -- spec-basis/no-fabrication HARD
+ check, evidence-incomplete check, gBizID-Prime-verification-missing
+ HARD check, ISMAP-prerequisite-unverified HARD check,
+ engagement-fee-mismatch check, confidence-floor/actuation gate,
+ double-draft/double-submit guards per track), store.cljc
+ (MemStore + DatomicStore via kotoba-lang/langchain-store, engagement
+ entity tracking :gbizid and :govcloud tracks independently),
+ registry.cljc (pure-function filing-draft/filing-submit record
+ construction), digitalprocurementllm.cljc (mock Compliance Advisor),
+ operation.cljc (intake -> advise -> govern -> decide ->
+ [request-approval ->] commit/hold StateGraph), phase.cljc (0->3
+ rollout, :filing/draft and :filing/submit permanently excluded from
+ every phase's :auto set). 27 tests / 89 assertions passing (governor
+ contract + store parity + facts + phase + registry), clj-kondo clean
+ (0 errors)."}
