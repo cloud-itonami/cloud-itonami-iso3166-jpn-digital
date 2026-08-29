@@ -1,0 +1,346 @@
+;; Regulatory source register for JPN-DIGITAL — the Digital Agency
+;; (デジタル庁), its gBizID identity track and its digital-government
+;; procurement/statutory basis.
+;;
+;; README.md says facts.cljc is "the ONLY source of regulatory-requirement
+;; facts the actor may cite" — but until this file existed, nothing mapped a
+;; claim in that file to a live authority. This is that list.
+;;
+;; Shape is tx-data (a vector of entity maps), like every other EDN corpus in
+;; this workspace, so it loads with
+;;   (d/transact conn (edn/read-string (slurp "facts.edn")))
+;; :source/id is the join key. A law or page not in this table has NO
+;; spec-basis for this repository — extend the table, never invent an id or a
+;; URL.
+;;
+;; VERIFIED BY `nbb scripts/verify-facts.cljs`, which re-fetches every entry.
+;; Each carries a :source/verify tag naming WHICH check establishes it:
+;;
+;;   :e-gov-law-id   Resolve the law id through the e-Gov law API and require
+;;                   the title and the law number to still match. HTTP status
+;;                   is never consulted here and must not be:
+;;                   laws.e-gov.go.jp is a single-page app that answers
+;;                   HTTP 200 for /law/<anything>, renders "not found"
+;;                   client-side, and therefore cannot tell a real citation
+;;                   from an invented one.
+;;
+;;   :page-identity  Fetch and require four things together: a 2xx, a final
+;;                   URL that is still the page asked for, the declared
+;;                   charset, and the <title> recorded below.
+;;
+;;   :page-text      All of :page-identity, plus every string in
+;;                   :page/must-contain present in the de-tagged body.
+;;
+;; THE HOST ASSUMPTIONS ARE MEASURED AT RUN TIME, NOT DATED IN A COMMENT.
+;; The :host-behaviour entities below say what each host does with a path that
+;; does not exist. The verifier fetches a nonexistent path on every host in the
+;; register and fails if the answer has changed. A dated note saying "measured
+;; to refuse correctly" degrades into a constant the moment it is written; a
+;; declaration the run re-measures cannot.
+;;
+;; MEASURED 2026-08-30, THE DAY THIS REGISTER WAS WRITTEN, AND DIFFERENT PER
+;; HOST — WHICH IS WHY THEY ARE PER-HOST ENTITIES AND NOT A SHARED DEFAULT:
+;;
+;;   www.digital.go.jp   answers 404 for a path that does not exist, with a
+;;                       real ページ ("404｜デジタル庁", 2828 bytes) AT the
+;;                       requested URL. 404 is not 2xx, so status still
+;;                       discriminates. Content-Type carries no charset; the
+;;                       encoding is declared only by a <meta> tag — the
+;;                       verifier reads the meta tag when the header is silent.
+;;
+;;   gbiz-id.go.jp       answers 404 with a generic "エラー" page (4071 bytes),
+;;                       declared charset=UTF-8 in the header. The title differs
+;;                       from every real page on the host, which is what makes
+;;                       :page-identity mean something here on top of status.
+;;
+;;   pr.gbiz-id.go.jp    answers 403 with a 111-byte application/xml body and
+;;                       NO <title> at all — an S3-style XML error document, not
+;;                       an HTML page. A checker written to read <title> off
+;;                       every refusal would see nil here and might misreport a
+;;                       host that answered perfectly clearly. Status still
+;;                       discriminates: 403 is not 2xx.
+;;
+;; None of the three hosts challenged this client while the register was built
+;; (seven serial probes, seconds apart). None of them is declared
+;; challenge-prone; if one starts, the verifier refuses on it and says so
+;; rather than reporting a pass it did not earn.
+;;
+;; :source/covers says why an entry is in a Digital-Agency procurement and
+;; identity register. Claims stop at the level actually checked — law identity,
+;; and for the pages the title, the URL, the charset and the strings read on
+;; 2026-08-30. No article text and no PDF is asserted, because none was read.
+
+[
+ ;; ── What each host does with a path that does not exist ────────────────────
+ ;; Re-measured on every run. A change here invalidates the check that rests
+ ;; on it, which is the point of writing it down as data.
+
+ {:source/id "host.www-digital-go-jp"
+  :source/kind :host-behaviour
+  :host/name "www.digital.go.jp"
+  :host/missing-path :refuses
+  :host/missing-status 404
+  :source/note "デジタル庁 itself. Answers 404 with a 2828-byte
+                404｜デジタル庁 page served at the requested URL, charset
+                declared only in the <meta> tag, not the header. The page is
+                REAL — that is a genuine soft 404, and any 2xx here would be
+                the failure signal."}
+
+ {:source/id "host.gbiz-id-go-jp"
+  :source/kind :host-behaviour
+  :host/name "gbiz-id.go.jp"
+  :host/missing-path :refuses
+  :host/missing-status 404
+  :source/note "The GビズID service host. Answers 404 with a 4071-byte
+                エラー page at the requested URL. Its title is generic —
+                エラー, no site name — so it is the TITLE of the real pages,
+                not of this one, that carries the discrimination."}
+
+ {:source/id "host.pr-gbiz-id-go-jp"
+  :source/kind :host-behaviour
+  :host/name "pr.gbiz-id.go.jp"
+  :host/missing-path :refuses
+  :host/missing-status 403
+  :source/note "The GビズID overview site. Answers 403 with a 111-byte
+                application/xml document and no <title> — an object-store
+                error page, not HTML. Refuses a DIFFERENT status (403) than
+                the other two hosts (404) for the same kind of mistake, which
+                is exactly why this is declared per host and not assumed."}
+
+ ;; ── Statutes: the agency itself and its mandate ────────────────────────────
+
+ {:source/id "law.digital-agency-establishment"
+  :source/kind :statute
+  :source/title "デジタル庁設置法"
+  :source/publisher "e-Gov 法令検索 (Digital Agency)"
+  :source/url "https://laws.e-gov.go.jp/law/503AC0000000036"
+  :source/verify :e-gov-law-id
+  :egov/law-id "503AC0000000036"
+  :egov/law-title "デジタル庁設置法"
+  :egov/law-num "令和三年法律第三十六号"
+  :source/retrieved-at "2026-08-30"
+  :source/covers #{:agency-mandate}
+  :source/note "The Act that constitutes the Digital Agency (2021). Article
+                text not read; this entry establishes that the Act exists and
+                is identified correctly, nothing further. The e-Gov publisher
+                label reading \"Digital Agency\" is not a coincidence — the
+                agency operates the law database — but that does not make the
+                agency the authority for every law here, which is why each
+                entry carries its own :source/covers."}
+
+ ;; ── Statutes: the digital-government frame ─────────────────────────────────
+
+ {:source/id "law.digital-society-basic"
+  :source/kind :statute
+  :source/title "デジタル社会形成基本法"
+  :source/publisher "e-Gov 法令検索 (Digital Agency)"
+  :source/url "https://laws.e-gov.go.jp/law/503AC0000000035"
+  :source/verify :e-gov-law-id
+  :egov/law-id "503AC0000000035"
+  :egov/law-title "デジタル社会形成基本法"
+  :egov/law-num "令和三年法律第三十五号"
+  :source/retrieved-at "2026-08-30"
+  :source/covers #{:digital-government :agency-mandate}
+  :source/note "The basic Act for digital-society formation, promulgated one
+                day BEFORE the establishment Act here (第三十五号 vs 第三十六号)
+                — the statutory frame was legislated in the same month as the
+                agency itself, and this register does not assert which powers
+                flow from which. Identity only."}
+
+ {:source/id "law.digital-procedure"
+  :source/kind :statute
+  :source/title "情報通信技術を活用した行政の推進等に関する法律"
+  :source/publisher "e-Gov 法令検索 (Digital Agency)"
+  :source/url "https://laws.e-gov.go.jp/law/414AC0000000151"
+  :source/verify :e-gov-law-id
+  :egov/law-id "414AC0000000151"
+  :egov/law-title "情報通信技術を活用した行政の推進等に関する法律"
+  :egov/law-num "平成十四年法律第百五十一号"
+  :source/retrieved-at "2026-08-30"
+  :source/covers #{:digital-procedure :filing-forms}
+  :source/note "デジタル手続法 — the customary short name e-Gov itself lists
+                as the first abbreviation. A 平成十四年 Act predating the
+                agency by nineteen years, now administered under its digital-
+                government programme: the register pins the full title and not
+                the short name, because the short name appears nowhere in the
+                title e-Gov holds. Identity only."}
+
+ {:source/id "law.digital-procedure-order"
+  :source/kind :statute
+  :source/title "情報通信技術を活用した行政の推進等に関する法律施行令"
+  :source/publisher "e-Gov 法令検索 (Digital Agency)"
+  :source/url "https://laws.e-gov.go.jp/law/415CO0000000027"
+  :source/verify :e-gov-law-id
+  :egov/law-id "415CO0000000027"
+  :egov/law-title "情報通信技術を活用した行政の推進等に関する法律施行令"
+  :egov/law-num "平成十五年政令第二十七号"
+  :source/retrieved-at "2026-08-30"
+  :source/covers #{:digital-procedure :filing-forms}
+  :source/note "Cabinet Order under デジタル手続法, the year after its parent
+                Act. Identity only."}
+
+ ;; ── Statutes: identity and signature ───────────────────────────────────────
+
+ {:source/id "law.electronic-signature"
+  :source/kind :statute
+  :source/title "電子署名及び認証業務に関する法律"
+  :source/publisher "e-Gov 法令検索 (Digital Agency)"
+  :source/url "https://laws.e-gov.go.jp/law/412AC0000000102"
+  :source/verify :e-gov-law-id
+  :egov/law-id "412AC0000000102"
+  :egov/law-title "電子署名及び認証業務に関する法律"
+  :egov/law-num "平成十二年法律第百二号"
+  :source/retrieved-at "2026-08-30"
+  :source/covers #{:identity :electronic-signature}
+  :source/note "電子署名法. The customary name is a truncation that drops the
+                second half of the title — citing \"電子署名法\" as a title
+                would be citing something e-Gov does not hold. Identity only:
+                the accreditation regime for certification operators is
+                article text and is NOT asserted."}
+
+ {:source/id "law.my-number"
+  :source/kind :statute
+  :source/title "行政手続における特定の個人を識別するための番号の利用等に関する法律"
+  :source/publisher "e-Gov 法令検索 (Digital Agency)"
+  :source/url "https://laws.e-gov.go.jp/law/425AC0000000027"
+  :source/verify :e-gov-law-id
+  :egov/law-id "425AC0000000027"
+  :egov/law-title "行政手続における特定の個人を識別するための番号の利用等に関する法律"
+  :egov/law-num "平成二十五年法律第二十七号"
+  :source/retrieved-at "2026-08-30"
+  :source/covers #{:identity}
+  :source/note "マイナンバー法 — the identity infrastructure GビズID's online
+                account issuance sits on (the pr.gbiz-id.go.jp page cited
+                below names the マイナンバーカード as the online route). The
+                customary name shares no character with the title: a register
+                keyed on customary names would not be able to state what it
+                actually cites. Identity only; the use restrictions and the
+                penalty provisions are article text and are NOT asserted."}
+
+ ;; ── デジタル庁 pages ────────────────────────────────────────────────────────
+
+ {:source/id "digital.home"
+  :source/kind :agency-page
+  :source/title "デジタル庁"
+  :source/publisher "デジタル庁"
+  :source/url "https://www.digital.go.jp/"
+  :source/verify :page-identity
+  :page/title "デジタル庁"
+  :source/retrieved-at "2026-08-30"
+  :source/covers #{:agency-mandate :digital-government}
+  :source/note "Front page. Its title is the bare site name with no separator
+                and no page name — the same title convention organization.edn
+                implies and unlike every other page cited on this host. Its
+                title equals the <meta name=\"author\"> the host's 404 page
+                carries, so title alone does not separate it from that host's
+                refusal; the STATUS does (404 vs 200), which is what the
+                host-behaviour entity above is measured for."}
+
+ {:source/id "digital.about"
+  :source/kind :agency-page
+  :source/title "組織情報｜デジタル庁"
+  :source/publisher "デジタル庁"
+  :source/url "https://www.digital.go.jp/about"
+  :source/verify :page-identity
+  :page/title "組織情報｜デジタル庁"
+  :source/retrieved-at "2026-08-30"
+  :source/covers #{:agency-mandate}
+  :source/note "The organization page. Its canonical URL carries NO trailing
+                slash — asking for /about/ is a different request, and the
+                register pins the URL the host actually serves at the final
+                hop. The title separator is the FULL-WIDTH ｜ (U+FF5C); a
+                register that normalised punctuation would compare this
+                against an ASCII | and stop being able to tell one page's
+                title convention from another's."}
+
+ ;; ── GビズID pages (gbiz-id.go.jp / pr.gbiz-id.go.jp) ───────────────────────
+
+ {:source/id "gbizid.about"
+  :source/kind :agency-page
+  :source/title "GビズIDとは｜GビズID(法人・個人事業主向けアカウント)｜デジタル庁"
+  :source/publisher "デジタル庁 (GビズID)"
+  :source/url "https://pr.gbiz-id.go.jp/"
+  :source/verify :page-identity
+  :page/title "GビズIDとは｜GビズID(法人・個人事業主向けアカウント)｜デジタル庁"
+  :source/retrieved-at "2026-08-30"
+  :source/covers #{:identity :gbizid}
+  :source/note "The GビズID overview site's front page — the page facts.cljc
+                cites as the :gbizid track's public overview. Its title carries
+                TWO full-width ｜ separators and the parenthesised audience
+                (法人・個人事業主向けアカウント); the same site's service host
+                cites below uses a single ASCII | — two title conventions on
+                two hosts of one service."}
+
+ {:source/id "gbizid.top"
+  :source/kind :agency-page
+  :source/title "GビズID | Home"
+  :source/publisher "デジタル庁 (GビズID)"
+  :source/url "https://gbiz-id.go.jp/top/"
+  :source/verify :page-text
+  :page/title "GビズID | Home"
+  :page/must-contain ["GビズIDは、１つのID・パスワードで"
+                      "共通認証システム"
+                      "行政サービス一覧"]
+  :source/retrieved-at "2026-08-30"
+  :source/covers #{:identity :gbizid :digital-procedure}
+  :source/note "The service portal's own front page (facts.cljc's
+                :official-portal). The first pinned string is the service's
+                one-line self-description and carries the FULL-WIDTH １
+                (U+FF11) in １つ — an ASCII 1 in its place would not be on the
+                page. The second is the legal characterisation (共通認証システ
+                ム) this register asserts nothing further about. NOTE the page
+                carries dated service notices (maintenance windows, expiring
+                announcements) that rotate; the pinned strings were chosen
+                from the stable self-description, not the news column, which
+                is also why this entry asserts nothing about availability
+                dates read beside them."}
+
+ ;; ── What this register does not establish ──────────────────────────────────
+
+ {:source/id "register.coverage"
+  :source/kind :coverage
+  :coverage/entries 10
+  :coverage/by-verify {:e-gov-law-id 6 :page-identity 3 :page-text 1}
+  :coverage/verified-at "2026-08-30"
+  :coverage/covered #{:agency-mandate :digital-government :digital-procedure
+                      :identity :electronic-signature :gbizid :filing-forms}
+  :coverage/not-covered
+  ["Article text. All 6 statutes are established at identity level only --
+    title plus law number, resolved through the e-Gov API. No article,
+    paragraph or item is cited, so nothing here supports a claim about what
+    any of these laws requires."
+   "The ISMAP / Gov-Cloud catalog. facts.cljc grounds its :govcloud track in
+    cyber.go.jp (ISMAP) and meti.go.jp sources; neither host is surveyed by
+    this register. A Digital-Agency leaf can name the prerequisite without
+    this register establishing it — and nothing here should be read as
+    establishing it."
+   "Every PDF. The procurement public-notice specification facts.cljc cites is
+    a PDF on www.digital.go.jp. This register establishes that the agency's
+    site is reachable and identified, not what any document on it says."
+   "How reliably these hosts can be read in a tight loop. None challenged a
+    serial, paced client while the register was built, but no stress test was
+    run either — the absence of a measurement is not the measurement of an
+    absence, and a burst client may still be refused."
+   "Therefore the whole of organization.edn is unverified by this register.
+    Its :hq block claims 〒102-0094, 東京都千代田区紀尾井町1-3 with :provenance
+    https://www.digital.go.jp/ and :last-verified 2026-06-02. No page cited
+    here was read for an address; nothing in organization.edn was confirmed
+    and nothing in it was corrected."
+   "gBizID account procedures, eligibility screening and the プライム/メンバー/
+    エントリー tier rules described on the pages cited. The pages exist and
+    describe them; this register asserts only that the pages are who they say
+    they are and contain the pinned strings. Tier rules and screening are
+    service policy, read on the page, not asserted here."
+   "Fees, processing times, and account-expiry mechanics. Not asserted,
+    because they move."
+   "Other agency services reachable through GビズID (e-Gov, Jグランツ, Mynaportal
+    and the rest of the service list). They are separate authorities with
+    their own hosts, not surveyed."
+   "Whether any statute here is currently in force as amended. The e-Gov API
+    answers with a current revision title and number, which establishes
+    identity, not applicability on a given date."]
+  :source/note "This entity is checked against the file: the verifier compares
+                :coverage/entries and :coverage/by-verify with what it actually
+                read, so a source added without updating this block is a
+                failure rather than a silent drift."}
+]
