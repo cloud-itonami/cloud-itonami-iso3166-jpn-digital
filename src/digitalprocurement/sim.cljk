@@ -1,5 +1,5 @@
 (ns digitalprocurement.sim
-  "Demo driver -- `clojure -M:dev:run`. Walks a clean engagement
+  "Demo driver -- `kbb -M:dev:run`. Walks a clean engagement
   through intake -> gBizID track assessment -> filing draft
   (escalate/approve/commit) -> filing submit (escalate/approve/
   commit), same for the Gov-Cloud track, then shows HARD-hold
