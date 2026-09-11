@@ -12,7 +12,7 @@
                         (ADR-2607141600).
 
   Both implement the same protocol and pass the same contract
-  (test/digitalprocurement/store_contract_test.clj).
+  (test/digitalprocurement/store_contract_test.cljk).
 
   The primary entity here is an `engagement` -- one operator's
   compliance engagement carrying BOTH parallel tracks:
