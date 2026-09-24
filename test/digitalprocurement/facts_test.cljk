@@ -1,5 +1,5 @@
 (ns digitalprocurement.facts-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [digitalprocurement.facts :as facts]))
 
 (deftest gbizid-has-spec-basis
